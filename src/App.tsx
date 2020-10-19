@@ -1,24 +1,39 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import SimpleTime from './models/SimpleTime';
+import * as TimeUtils from './utilities/TimeUtils';
 
 function App() {
+
+  const [textInput, setTextInput] = React.useState('');
+
+  const handleInput = (value:string) => {
+    setTextInput(value);
+  }
+
+  const renderResults = (input:string) => {
+    const parsed = TimeUtils.parseRawText(input);
+    const calculated = TimeUtils.calculateFormattedRow(parsed);
+    return TimeUtils.summarizeFormattedRow(calculated);
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <textarea
+        onChange={(e) => handleInput(e.currentTarget.value)}
+        value={textInput}>
+      </textarea>
+
+      <table>
+        <tbody>
+          {renderResults(textInput).map(row => (
+          <tr key={row.title+row.duration}>
+              <td>{row.title}</td>
+              <td>{TimeUtils.msToHours(row.duration)}hr</td>
+          </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
