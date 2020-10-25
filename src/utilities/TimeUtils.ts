@@ -13,20 +13,19 @@ export const parseTimeString = (timeString:string) => {
     formattedTimeString = formattedTimeString.replace('pm', '').trim();
     const [rawHr, rawMin] = formattedTimeString.trim().split(':');
     const hours = parseInt(rawHr, 10) + (pm ? 12 : 0);
-    const mins = parseInt(rawMin, 10);
+    const mins = parseInt(rawMin ?? 0, 10);
     return {
         hours,
         mins
     }
 }
 
-export interface IFormattedRow {
+export interface IParsedRow {
     title: string,
     time: SimpleTime,
-    exception?: string
 }
 
-export interface ICalculatedRow extends IFormattedRow {
+export interface ICalculatedRow extends IParsedRow {
   duration: number
 }
 
@@ -35,48 +34,54 @@ export interface ISummarizedRow {
   duration: number
 }
 
-export const parseRawText = (rawText:string):Array<IFormattedRow> => {
+export enum ParsingError {
+  NoTimeFound = "Could not find a time in row"
+}
+
+export const isIParsedRow = (row:IParsedRow|ParsingError) : row is IParsedRow => {
+  return (row as IParsedRow).title !== undefined;
+}
+
+const matchTime = /(?<hr>\d{1,2}):?(?<min>\d{2})?:?(?<sec>\d{2})?\s*(?<meridiem>am|pm)?/;
+
+// Matches dashes and whitespace at the start of the string. Whitespace at end of string
+const cleanTitle = /^[\s|-]+|\s+$/g;
+
+export const parseRawText = (rawText:string):Array<IParsedRow|ParsingError> => {
   let latestTime = 0;
   let isPm = false;
 
-  if(!rawText.trim().length) {
-    return [];
-  }
-
-  const ret = rawText
+  return rawText
     .trim()
     .split('\n')
+    .filter(x => x.trim().length > 0)
     .map(row => {
-      const [timeString, title] = row.split('-');
-      if(!timeString || !title) {
-        return {
-          title: '',
-          time: new SimpleTime(0),
-          exception: 'Missing timeString or title'
-        }
+      const match = row.match(matchTime);
+      if(!match || !match.groups || !match.groups.hr) {
+        return ParsingError.NoTimeFound;
       }
-      let time = new SimpleTime(timeString?.trim());
-      const timeMs = time.timeInMs;
-      if(!isPm && timeMs < latestTime) {
+      const title = row.replace(matchTime, '').replace(cleanTitle, '');
+      const timeString = `${match.groups.hr}:${match.groups.min ?? '00'} ${match.groups.meridiem ?? 'am'}`;
+      let time = new SimpleTime(timeString);
+
+      if(!isPm && time.timeInMs < latestTime) {
         isPm = true;
       } else {
-        latestTime = timeMs;
+        latestTime = time.timeInMs;
       }
 
-      if(isPm) {
-        time = new SimpleTime(timeString.trim() + ' pm');
+      if(isPm && time.timeInMs < hrToMs(12)) {
+        time = new SimpleTime(time.timeInMs + hrToMs(12));
       }
 
-      return {
-        title: title?.trim(),
-        time,
+      return  {
+        title,
+        time
       }
-    });
-
-    return ret;
+    })
 }
 
-export const calculateFormattedRow = (formattedRow:Array<IFormattedRow>):Array<ICalculatedRow> => {
+export const calculateFormattedRow = (formattedRow:Array<IParsedRow>):Array<ICalculatedRow> => {
   return formattedRow.map((x, i, arr) => {
     const nextRow = arr[i + 1];
     const duration = nextRow ? nextRow.time.timeInMs - x.time.timeInMs : 0;
@@ -92,17 +97,17 @@ export const calculateFormattedRow = (formattedRow:Array<IFormattedRow>):Array<I
 export const summarizeFormattedRow = (formattedRow:Array<ICalculatedRow>):Array<ISummarizedRow> => {
   const map = new Map<string, ISummarizedRow>();
   formattedRow.forEach((row) => {
-    const key = row.title;
-    const prevVal = map.get(key);
-    if(prevVal) {
-      prevVal.duration = prevVal.duration +  row.duration;
-      return;
-    }
-    map.set(key, {
-      duration: row.duration,
-      title: row.title
+      const key = row.title;
+      const prevVal = map.get(key);
+      if(prevVal) {
+        prevVal.duration = prevVal.duration +  row.duration;
+        return;
+      }
+      map.set(key, {
+        duration: row.duration,
+        title: row.title
+      });
     });
-  });
 
   return Array.from(map, ([key, value]) => {
     return value;

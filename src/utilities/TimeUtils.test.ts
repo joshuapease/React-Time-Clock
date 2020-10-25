@@ -6,7 +6,7 @@ import * as TimeUtils from './TimeUtils';
 describe('TimeUtils', () => {
 
 
-    const formattedRowResult:Array<TimeUtils.IFormattedRow> = [
+    const formattedRowResult:Array<TimeUtils.IParsedRow> = [
         {
             title: 'Start',
             time: new SimpleTime('9:00')
@@ -29,7 +29,7 @@ describe('TimeUtils', () => {
         }
     ];
 
-    const calculatedRowResult:Array<TimeUtils.ICalculatedRow> = [
+    const calculatedRowResult:Array<any> = [
         {
             title: 'Start',
             time: new SimpleTime('9:00'),
@@ -79,6 +79,13 @@ describe('TimeUtils', () => {
                 mins: 0
             })
         })
+
+        it('Parses single hour properly', () => {
+            expect(TimeUtils.parseTimeString('1 pm')).toEqual({
+                hours: 13,
+                mins: 0
+            })
+        })
     })
 
     describe('parseRawText', () => {
@@ -90,10 +97,30 @@ describe('TimeUtils', () => {
             4:30 - Stuff
         `;
 
-        // it('New Regex Works', () => {
+        const newInputText = `
+            9:00 - A  \n
+            10:00 am - B
+            1 pm - C
+        `;
 
-        //     expect
-        // })
+        const expected:Array<TimeUtils.IParsedRow> =  [
+            {
+                time: new SimpleTime('9:00'),
+                title: 'A'
+            },
+            {
+                time: new SimpleTime('10:00 am'),
+                title: 'B'
+            },
+            {
+                time: new SimpleTime('1 pm'),
+                title: 'C'
+            }
+        ];
+
+        it('New Regex Works', () => {
+            expect(TimeUtils.parseRawText(newInputText)).toEqual(expected)
+        })
 
         it('Parses Raw Text Properly', () => {
             const result = TimeUtils.parseRawText(inputText);
@@ -105,21 +132,14 @@ describe('TimeUtils', () => {
         });
 
         it('Handles partial input properly', () => {
-            const expected:Array<TimeUtils.IFormattedRow> = [
-                {
-                    title: '',
-                    time: new SimpleTime(0),
-                    exception: 'Missing timeString or title' // TODO - turn into enum
-                }
-            ]
-            expect(TimeUtils.parseRawText(`fasdkl`)).toEqual(expected);
+            expect(TimeUtils.parseRawText(`fasdkl`)).toEqual([TimeUtils.ParsingError.NoTimeFound]);
         });
     })
 
     describe('calculateFormattedRow', () => {
         it('Calculates properly', () => {
             const result = TimeUtils.calculateFormattedRow(formattedRowResult);
-            expect(result).toEqual(calculatedRowResult);
+            expect(result.map(x => x.duration)).toEqual(calculatedRowResult.map(x => x.duration));
         })
     })
 
