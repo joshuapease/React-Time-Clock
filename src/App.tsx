@@ -1,6 +1,5 @@
 import React from 'react';
 import './App.css';
-import SimpleTime from './models/SimpleTime';
 import * as TimeUtils from './utilities/TimeUtils';
 
 function App() {
@@ -13,27 +12,32 @@ function App() {
 
   const renderResults = (input:string) => {
     const parsed = TimeUtils.parseRawText(input);
-    const calculated = TimeUtils.calculateFormattedRow(parsed);
-    return TimeUtils.summarizeFormattedRow(calculated);
+    const calculated = TimeUtils.calculateFormattedRow(parsed.filter(TimeUtils.isIParsedRow));
+    return TimeUtils.summarizeFormattedRow(calculated).filter(x => x.duration > 0);
   }
 
   return (
     <div className="App">
       <textarea
+        placeholder="foo"
+        className="App__input"
         onChange={(e) => handleInput(e.currentTarget.value)}
         value={textInput}>
       </textarea>
 
-      <table>
-        <tbody>
-          {renderResults(textInput).map(row => (
-          <tr key={row.title+row.duration}>
-              <td>{row.title}</td>
-              <td>{TimeUtils.msToHours(row.duration)}hr</td>
-          </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="App__hours">
+        <table>
+          <tbody>
+            {renderResults(textInput).map(row => (
+            <tr key={row.title+row.duration}>
+                <td>{row.title}</td>
+                <td>{TimeUtils.msToHours(row.duration)}hr</td>
+            </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
     </div>
   );
 }
