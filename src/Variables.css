@@ -1,0 +1,33 @@
+:root {
+    --color-base-200: hsl(0, 0%, 13%);
+    --color-base-300: hsl(0, 0%, 15%);
+    --color-base-500: hsl(0, 0%, 18%);
+    --color-base-600: hsl(0, 0%, 21%);
+    --color-base-700: hsl(0, 0%, 25%);
+
+    --color-inverse-700: hsl(0, 0%, 60%);
+    --color-inverse-900: hsl(0, 0%, 78%);
+
+    --ui-body-background-color: var(--color-base-500);
+    --ui-body-color: var(--color-inverse-900);
+
+    --ui-input-background-color: var(--color-base-300);
+
+    --base-unit: 8px;
+    --base-unit-factor: 1;
+    --unit-1: calc(var(--base-unit) * var(--base-unit-factor));
+    --unit-2: calc(var(--base-unit) * 2);
+    --unit-3: calc(var(--base-unit) * 3);
+    --unit-4: calc(var(--base-unit) * 4);
+    --unit-5: calc(var(--base-unit) * 5);
+
+    --border-radius-default: calc(var(--base-unit) * .5);
+    --border-radius-sm: calc(var(--border-radius-default) * .5);
+
+
+    --box-shadow-default: 0 1px 3px hsla(0, 0%, 0%, .125);
+    --box-shadow-default-inset: inset 0 1px 3px hsla(0, 0%, 0%, .125);
+
+    --ui-input-border-radius: var(--border-radius-default);
+
+}

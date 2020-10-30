@@ -12,10 +12,10 @@ export const parseTimeString = (timeString:string) => {
     const pm = formattedTimeString.includes('pm');
     formattedTimeString = formattedTimeString.replace('pm', '').trim();
     const [rawHr, rawMin] = formattedTimeString.trim().split(':');
-    const hours = parseInt(rawHr, 10) + (pm ? 12 : 0);
+    const hours = parseInt(rawHr, 10);
     const mins = parseInt(rawMin ?? 0, 10);
     return {
-        hours,
+        hours: hours + (pm && hours < 12 ? 12 : 0),
         mins
     }
 }
@@ -81,7 +81,7 @@ export const parseRawText = (rawText:string):Array<IParsedRow|ParsingError> => {
     })
 }
 
-export const calculateFormattedRow = (formattedRow:Array<IParsedRow>):Array<ICalculatedRow> => {
+export const calculateRow = (formattedRow:Array<IParsedRow>):Array<ICalculatedRow> => {
   return formattedRow.map((x, i, arr) => {
     const nextRow = arr[i + 1];
     const duration = nextRow ? nextRow.time.timeInMs - x.time.timeInMs : 0;
@@ -94,7 +94,7 @@ export const calculateFormattedRow = (formattedRow:Array<IParsedRow>):Array<ICal
 }
 
 
-export const summarizeFormattedRow = (formattedRow:Array<ICalculatedRow>):Array<ISummarizedRow> => {
+export const summarizeRows = (formattedRow:Array<ICalculatedRow>):Array<ISummarizedRow> => {
   const map = new Map<string, ISummarizedRow>();
   formattedRow.forEach((row) => {
       const key = row.title;
@@ -109,48 +109,17 @@ export const summarizeFormattedRow = (formattedRow:Array<ICalculatedRow>):Array<
       });
     });
 
-  return Array.from(map, ([key, value]) => {
-    return value;
-  }).sort((a, b) => b.title > a.title ? -1 : 1)
+  return Array.from(map, ([key, value]) => value)
+    .sort((a, b) => b.title > a.title ? -1 : 1)
 }
 
-/*
-
-var data = text
-  .trim()
-  .split('\n')
-  .map(x => {
-    var [timeString, title] = x.split('-');
-
-    hours = parseInt(hours, 10);
-    mins = parseInt(mins, 10);
-    var time = new Date();
-    time.setHours(hours, mins, 0);
-
-    if(!pastNoon && time < highestTime) {
-      pastNoon = true;
-    } else {
-      highestTime = time;
+export const totalRows = (rows:Array<ICalculatedRow|ISummarizedRow>, exclusions?:Array<string>):SimpleTime => {
+  var totalMs = rows.reduce((acc, row) => {
+    if(exclusions?.length && exclusions.includes(row.title)) {
+      return acc;
     }
+    return acc += row.duration;
+  }, 0);
 
-    if(pastNoon) {
-      time.setHours(hours + 12, mins, 0);
-    }
-
-    var ret =  {
-      time,
-      hours: time.getHours(),
-      title: title.trim()
-    }
-
-    return ret;
-  }).map((x, i, arr) => {
-    var next = arr[i + 1];
-    var nextTime = next ? next.time : null;
-    var duration = nextTime ? msToHours(nextTime - x.time) : null;
-    return {
-      ...x,
-      duration
-    };
-  });
-*/
+  return new SimpleTime(totalMs);
+}

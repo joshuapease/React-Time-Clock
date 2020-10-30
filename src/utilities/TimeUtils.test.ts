@@ -1,12 +1,10 @@
 import SimpleTime from '../models/SimpleTime';
 import * as TimeUtils from './TimeUtils';
 
-
-
 describe('TimeUtils', () => {
 
 
-    const formattedRowResult:Array<TimeUtils.IParsedRow> = [
+    const parsedRows:Array<TimeUtils.IParsedRow> = [
         {
             title: 'Start',
             time: new SimpleTime('9:00')
@@ -29,7 +27,7 @@ describe('TimeUtils', () => {
         }
     ];
 
-    const calculatedRowResult:Array<any> = [
+    const calculatedRows:Array<TimeUtils.ICalculatedRow> = [
         {
             title: 'Start',
             time: new SimpleTime('9:00'),
@@ -86,6 +84,18 @@ describe('TimeUtils', () => {
                 mins: 0
             })
         })
+
+        it('Parses 24 hour time properly', () => {
+            expect(TimeUtils.parseTimeString('17:30')).toEqual({
+                hours: 17,
+                mins: 30
+            })
+
+            expect(TimeUtils.parseTimeString('17:30 pm')).toEqual({
+                hours: 17,
+                mins: 30
+            })
+        })
     })
 
     describe('parseRawText', () => {
@@ -124,7 +134,7 @@ describe('TimeUtils', () => {
 
         it('Parses Raw Text Properly', () => {
             const result = TimeUtils.parseRawText(inputText);
-            expect(result).toEqual(formattedRowResult);
+            expect(result).toEqual(parsedRows);
         })
 
         it('Handles empty input properly', () => {
@@ -138,8 +148,8 @@ describe('TimeUtils', () => {
 
     describe('calculateFormattedRow', () => {
         it('Calculates properly', () => {
-            const result = TimeUtils.calculateFormattedRow(formattedRowResult);
-            expect(result.map(x => x.duration)).toEqual(calculatedRowResult.map(x => x.duration));
+            const result = TimeUtils.calculateRow(parsedRows);
+            expect(result.map(x => x.duration)).toEqual(calculatedRows.map(x => x.duration));
         })
     })
 
@@ -164,7 +174,17 @@ describe('TimeUtils', () => {
         ];
 
         it('Summarizes properly', () => {
-            expect(TimeUtils.summarizeFormattedRow(calculatedRowResult)).toEqual(summarizedRow)
+            expect(TimeUtils.summarizeRows(calculatedRows)).toEqual(summarizedRow)
+        })
+    })
+
+    describe('totalRows', () => {
+        it('totalsCorrectly', () => {
+            expect(TimeUtils.totalRows(calculatedRows).timeInMs).toEqual(TimeUtils.hrToMs(7.5))
+        })
+
+        it('totalsWithExclusionsCorrectly', () => {
+            expect(TimeUtils.totalRows(calculatedRows, ['Bye!']).timeInMs).toEqual(TimeUtils.hrToMs(5))
         })
     })
 

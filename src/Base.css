@@ -1,0 +1,95 @@
+@import-normalize;
+
+html,
+body,
+#root {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+html {
+    box-sizing: border-box;
+}
+*,
+*:before,
+*:after {
+    box-sizing: inherit;
+}
+
+table {
+    border: 0;
+    border-spacing: 0;
+    text-align: left;
+    width: 100%;
+}
+
+body {
+    background-color: var(--ui-body-background-color);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+        "Segoe UI Symbol";
+    font-size: 18px;
+    color: var(--ui-body-color);
+    line-height: 1.6;
+}
+
+input,
+textarea {
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    display: block;
+    width: 100%;
+    background-color: var(--ui-input-background-color);
+    border: 0;
+    outline: none;
+    transition: background .35s ease-out;
+    border-radius: var(--ui-input-border-radius);
+    box-shadow: var(--box-shadow-default-inset);
+    padding: var(--base-unit) calc(var(--base-unit) * 2);
+}
+
+input:hover,
+textarea:hover {
+    background-color: var(--color-base-300);
+}
+
+input:focus,
+textarea:focus {
+    background-color: var(--color-base-200);
+}
+
+button {
+    border: none;
+    margin: 0;
+    padding: 0;
+    width: auto;
+    overflow: visible;
+
+    background: transparent;
+
+    /* inherit font & color from ancestor */
+    color: inherit;
+    font: inherit;
+
+    /* Normalize `line-height`. Cannot be changed from `normal` in Firefox 4+. */
+    line-height: normal;
+
+    /* Corrects font smoothing for webkit */
+    -webkit-font-smoothing: inherit;
+    -moz-osx-font-smoothing: inherit;
+
+    /* Corrects inability to style clickable `input` types in iOS */
+    -webkit-appearance: none;
+
+    cursor: pointer;
+}
+
+/* Remove excess padding and border in Firefox 4+ */
+button::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+}
