@@ -2,6 +2,7 @@ import React, {FunctionComponent} from 'react';
 import './CHoursList.css';
 import * as TimeUtils from '../utilities/TimeUtils';
 import copy from 'copy-to-clipboard';
+import { ClipboardText } from "phosphor-react";
 
 type CHoursListProps = {
     rows: Array<TimeUtils.ISummarizedRow>,
@@ -23,14 +24,14 @@ const CHoursList:FunctionComponent<CHoursListProps> = ({rows, exclusions}) => {
         <table className="CHoursList">
             <tbody>
                 {rows.map(row => {
-                    const hours = TimeUtils.msToHours(row.duration).toString();
+                    const hours = TimeUtils.msToHours(row.duration).toFixed(2);
                     const key = row.title+row.duration;
                     return (
                         <tr key={key} className={isExclusion(row, exclusions) ? 'is-excluded' : ''}>
                             <th scope="row" className="CHoursList__title">{row.title}</th>
                             <td className="CHoursList__duration">
                                 <button className="CHoursList__copy" onClick={e => copyHours(hours)}>
-                                    copy: {hours}
+                                    <ClipboardText weight="duotone" /> {hours}
                                 </button>
                             </td>
                         </tr>
