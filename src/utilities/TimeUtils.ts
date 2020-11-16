@@ -4,11 +4,8 @@ export const hrToMs = (hr:number) => hr * 60 * 60 * 1000;
 export const minToMs = (min:number) => min * 60 * 1000;
 export const msToHours = (ms:number) => ms / 1000 / 60 / 60;
 
-var highestTime = 0;
-var pastNoon = false;
-
 export const parseTimeString = (timeString:string) => {
-    let formattedTimeString = timeString.toLowerCase().replace('\./g', '');
+    let formattedTimeString = timeString.toLowerCase().replace(/\./g, '');
     const pm = formattedTimeString.includes('pm');
     formattedTimeString = formattedTimeString.replace('pm', '').trim();
     const [rawHr, rawMin] = formattedTimeString.trim().split(':');

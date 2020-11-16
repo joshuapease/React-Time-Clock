@@ -8,7 +8,6 @@ export default class SimpleTime {
      * @param time Can be a formatted string 00:00:00 or time in milleseconds
      */
     constructor(time: string | number) {
-        let ms = 0;
         if (typeof time == "string") {
             const result = TimeUtils.parseTimeString(time);
             this.timeInMs = TimeUtils.hrToMs(result.hours) + TimeUtils.minToMs(result.mins);
