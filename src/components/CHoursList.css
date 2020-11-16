@@ -52,3 +52,8 @@
 .CHoursList__copy:hover {
     background-color: var(--color-base-700);
 }
+
+.CHoursList__icon {
+    position: relative;
+    top: 2px;
+}

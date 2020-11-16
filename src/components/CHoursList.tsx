@@ -31,7 +31,7 @@ const CHoursList:FunctionComponent<CHoursListProps> = ({rows, exclusions}) => {
                             <th scope="row" className="CHoursList__title">{row.title}</th>
                             <td className="CHoursList__duration">
                                 <button className="CHoursList__copy" onClick={e => copyHours(hours)}>
-                                    <ClipboardText weight="duotone" /> {hours}
+                                    <ClipboardText className="CHoursList__icon" weight="duotone" /> {hours}
                                 </button>
                             </td>
                         </tr>
